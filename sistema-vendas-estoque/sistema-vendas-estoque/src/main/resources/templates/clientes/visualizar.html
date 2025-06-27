@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+<head>
+    <title>Visualizar Cliente</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Visualizar Cliente</h1>
+                <div>
+                    <a th:href="@{/clientes/{id}/editar(id=${cliente.clienteId})}" class="btn btn-primary me-2">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+                    <a href="/clientes" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Dados do Cliente</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label text-muted">Nome</label>
+                                    <p class="h5" th:text="${cliente.nome}">Nome do Cliente</p>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-muted">CPF/CNPJ</label>
+                                    <p class="h6" th:text="${cliente.cpfCnpj}">000.000.000-00</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Email</label>
+                                    <p th:if="${cliente.email}" th:text="${cliente.email}">email@exemplo.com</p>
+                                    <p th:unless="${cliente.email}" class="text-muted">Não informado</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Telefone</label>
+                                    <p th:if="${cliente.telefone}" th:text="${cliente.telefone}">(11) 99999-9999</p>
+                                    <p th:unless="${cliente.telefone}" class="text-muted">Não informado</p>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6 class="text-primary mb-3">Endereço</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-muted">CEP</label>
+                                    <p th:if="${cliente.cep}" th:text="${cliente.cep}">00000-000</p>
+                                    <p th:unless="${cliente.cep}" class="text-muted">-</p>
+                                </div>
+                                
+                                <div class="col-md-9 mb-3">
+                                    <label class="form-label text-muted">Endereço</label>
+                                    <p th:if="${cliente.endereco}" th:text="${cliente.endereco}">Rua, Avenida, etc.</p>
+                                    <p th:unless="${cliente.endereco}" class="text-muted">-</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-muted">Número</label>
+                                    <p th:if="${cliente.numero}" th:text="${cliente.numero}">123</p>
+                                    <p th:unless="${cliente.numero}" class="text-muted">-</p>
+                                </div>
+                                
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label text-muted">Complemento</label>
+                                    <p th:if="${cliente.complemento}" th:text="${cliente.complemento}">Apto, Sala, etc.</p>
+                                    <p th:unless="${cliente.complemento}" class="text-muted">-</p>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-muted">Bairro</label>
+                                    <p th:if="${cliente.bairro}" th:text="${cliente.bairro}">Nome do bairro</p>
+                                    <p th:unless="${cliente.bairro}" class="text-muted">-</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Cidade</label>
+                                    <p th:if="${cliente.cidade}" th:text="${cliente.cidade}">Nome da cidade</p>
+                                    <p th:unless="${cliente.cidade}" class="text-muted">-</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Estado</label>
+                                    <p th:if="${cliente.estado}" th:text="${cliente.estado}">SP</p>
+                                    <p th:unless="${cliente.estado}" class="text-muted">-</p>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${cliente.observacoes}" class="mb-3">
+                                <label class="form-label text-muted">Observações</label>
+                                <p th:text="${cliente.observacoes}">Observações sobre o cliente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informações do Sistema</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">ID do Cliente</label>
+                                <p class="font-weight-bold" th:text="${cliente.clienteId}">#123</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Data de Cadastro</label>
+                                <p th:text="${#temporals.format(cliente.dataCadastro, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
+                            </div>
+                            
+                            <div th:if="${cliente.dataAtualizacao}" class="mb-3">
+                                <label class="form-label text-muted">Última Atualização</label>
+                                <p th:text="${#temporals.format(cliente.dataAtualizacao, 'dd/MM/yyyy HH:mm')}">01/01/2024 15:30</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Ações</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/pedidos/novo?clienteId={id}(id=${cliente.clienteId})}" 
+                                   class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Novo Pedido
+                                </a>
+                                
+                                <a th:href="@{/pedidos?clienteId={id}(id=${cliente.clienteId})}" 
+                                   class="btn btn-info">
+                                    <i class="fas fa-list me-2"></i>Ver Pedidos
+                                </a>
+                                
+                                <button type="button" class="btn btn-danger" 
+                                        onclick="confirmarExclusao([[${cliente.clienteId}]], [[${cliente.nome}]])">
+                                    <i class="fas fa-trash me-2"></i>Excluir Cliente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Confirmação de Exclusão -->
+        <div class="modal fade" id="modalExclusao" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar Exclusão</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja excluir o cliente <strong id="nomeCliente"></strong>?</p>
+                        <p class="text-muted small">Esta ação não pode ser desfeita e todos os pedidos relacionados também serão afetados.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formExclusao" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Excluir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:fragment="scripts">
+        <script>
+            function confirmarExclusao(clienteId, nomeCliente) {
+                document.getElementById('nomeCliente').textContent = nomeCliente;
+                document.getElementById('formExclusao').action = '/clientes/' + clienteId + '/excluir';
+                new bootstrap.Modal(document.getElementById('modalExclusao')).show();
+            }
+        </script>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+<head>
+    <title th:text="${pedido.pedidoId != null ? 'Editar Pedido' : 'Novo Pedido'}">Pedido</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800" th:text="${pedido.pedidoId != null ? 'Editar Pedido #' + pedido.pedidoId : 'Novo Pedido'}">Pedido</h1>
+                <a href="/pedidos" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Formulário do Pedido -->
+                    <div class="card shadow mb-4" th:if="${pedido.pedidoId == null}">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Dados do Pedido</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/pedidos}" method="post">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="clienteId" class="form-label">Cliente *</label>
+                                        <select class="form-select" name="clienteId" id="clienteId" required>
+                                            <option value="">Selecione um cliente</option>
+                                            <option th:each="cliente : ${clientes}" 
+                                                    th:value="${cliente.clienteId}" 
+                                                    th:text="${cliente.nome}"
+                                                    th:selected="${param.clienteId != null and param.clienteId[0] == cliente.clienteId.toString()}">Cliente</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="usuarioId" class="form-label">Usuário Responsável *</label>
+                                        <select class="form-select" name="usuarioId" id="usuarioId" required>
+                                            <option value="">Selecione um usuário</option>
+                                            <option th:each="usuario : ${usuarios}" 
+                                                    th:value="${usuario.usuarioId}" 
+                                                    th:text="${usuario.nome}">Usuário</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="observacoes" class="form-label">Observações</label>
+                                    <textarea class="form-control" name="observacoes" id="observacoes" rows="3" 
+                                              placeholder="Observações sobre o pedido"></textarea>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <a href="/pedidos" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Criar Pedido
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Adicionar Itens (só aparece quando editando) -->
+                    <div class="card shadow mb-4" th:if="${pedido.pedidoId != null}">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Adicionar Item</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/pedidos/{id}/itens(id=${pedido.pedidoId})}" method="post">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="produtoId" class="form-label">Produto *</label>
+                                        <select class="form-select" name="produtoId" id="produtoId" required onchange="atualizarPreco()">
+                                            <option value="">Selecione um produto</option>
+                                            <option th:each="produto : ${produtos}" 
+                                                    th:value="${produto.produtoId}" 
+                                                    th:text="${produto.nome + ' - R$ ' + #numbers.formatDecimal(produto.preco, 1, 2)}"
+                                                    th:data-preco="${produto.preco}">Produto</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3 mb-3">
+                                        <label for="quantidade" class="form-label">Quantidade *</label>
+                                        <input type="number" class="form-control" name="quantidade" id="quantidade" 
+                                               min="1" value="1" required onchange="calcularSubtotal()">
+                                    </div>
+                                    
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Subtotal</label>
+                                        <div class="form-control-plaintext h6 text-success" id="subtotal">R$ 0,00</div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Adicionar Item
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Itens -->
+                    <div class="card shadow" th:if="${pedido.pedidoId != null}">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                Itens do Pedido
+                                <span class="badge bg-secondary ms-2" th:text="${#lists.size(itens)}">0</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(itens)}" class="text-center py-4">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Nenhum item adicionado ao pedido.</p>
+                                <p class="text-muted small">Use o formulário acima para adicionar produtos.</p>
+                            </div>
+                            
+                            <div th:unless="${#lists.isEmpty(itens)}" class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Preço Unit.</th>
+                                            <th>Quantidade</th>
+                                            <th>Subtotal</th>
+                                            <th class="text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${itens}">
+                                            <td>
+                                                <strong th:text="${item.produto.nome}">Nome do Produto</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${item.produto.categoria}">Categoria</small>
+                                            </td>
+                                            <td th:text="${'R$ ' + #numbers.formatDecimal(item.precoUnitario, 1, 2)}">R$ 0,00</td>
+                                            <td>
+                                                <span class="badge bg-primary" th:text="${item.quantidade}">1</span>
+                                            </td>
+                                            <td>
+                                                <strong th:text="${'R$ ' + #numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 0,00</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        title="Remover Item"
+                                                        onclick="removerItem([[${item.itemId}]])">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-active">
+                                            <th colspan="3" class="text-end">Total do Pedido:</th>
+                                            <th>
+                                                <span class="h5 text-success" th:text="${'R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 2)}">R$ 0,00</span>
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informações</h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${pedido.pedidoId == null}" class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Como criar um pedido:</strong>
+                                <ol class="mb-0 mt-2">
+                                    <li>Selecione o cliente</li>
+                                    <li>Escolha o usuário responsável</li>
+                                    <li>Clique em "Criar Pedido"</li>
+                                    <li>Adicione os produtos desejados</li>
+                                </ol>
+                            </div>
+                            
+                            <div th:if="${pedido.pedidoId != null}" class="alert alert-secondary">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Pedido #</strong><span th:text="${pedido.pedidoId}">123</span><br>
+                                <strong>Cliente:</strong> <span th:text="${pedido.cliente.nome}">Cliente</span><br>
+                                <strong>Status:</strong> 
+                                <span class="badge bg-warning" th:text="${pedido.status.descricao}">Pendente</span>
+                            </div>
+                            
+                            <div th:if="${pedido.pedidoId != null}" class="alert alert-success">
+                                <i class="fas fa-calculator me-2"></i>
+                                <strong>Resumo Financeiro:</strong><br>
+                                <strong>Itens:</strong> <span th:text="${#lists.size(itens)}">0</span><br>
+                                <strong>Total:</strong> <span th:text="${'R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 2)}">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow" th:if="${pedido.pedidoId != null}">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Ações do Pedido</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/pedidos/{id}(id=${pedido.pedidoId})}" class="btn btn-info">
+                                    <i class="fas fa-eye me-2"></i>Visualizar Pedido
+                                </a>
+                                
+                                <button type="button" class="btn btn-success" 
+                                        th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE and !#lists.isEmpty(itens)}"
+                                        onclick="confirmarPedido([[${pedido.pedidoId}]])">
+                                    <i class="fas fa-check me-2"></i>Confirmar Pedido
+                                </button>
+                                
+                                <button type="button" class="btn btn-danger" 
+                                        th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE}"
+                                        onclick="cancelarPedido([[${pedido.pedidoId}]])">
+                                    <i class="fas fa-times me-2"></i>Cancelar Pedido
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Confirmação -->
+        <div class="modal fade" id="modalConfirmacao" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modalMensagem">Confirmar ação?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formAcao" method="post" style="display: inline;">
+                            <button type="submit" class="btn" id="btnConfirmar">Confirmar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:fragment="scripts">
+        <script>
+            function atualizarPreco() {
+                const select = document.getElementById('produtoId');
+                const option = select.options[select.selectedIndex];
+                const preco = option.getAttribute('data-preco') || 0;
+                calcularSubtotal();
+            }
+            
+            function calcularSubtotal() {
+                const select = document.getElementById('produtoId');
+                const quantidade = document.getElementById('quantidade').value || 0;
+                const option = select.options[select.selectedIndex];
+                const preco = parseFloat(option.getAttribute('data-preco') || 0);
+                
+                const subtotal = preco * quantidade;
+                document.getElementById('subtotal').textContent = 'R$ ' + subtotal.toFixed(2).replace('.', ',');
+            }
+            
+            function removerItem(itemId) {
+                if (confirm('Tem certeza que deseja remover este item?')) {
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = '/pedidos/itens/' + itemId + '/excluir';
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+            
+            function confirmarPedido(pedidoId) {
+                document.getElementById('modalTitulo').textContent = 'Confirmar Pedido';
+                document.getElementById('modalMensagem').textContent = 'Tem certeza que deseja confirmar este pedido? Esta ação irá reduzir o estoque dos produtos.';
+                document.getElementById('formAcao').action = '/pedidos/' + pedidoId + '/confirmar';
+                document.getElementById('btnConfirmar').className = 'btn btn-success';
+                document.getElementById('btnConfirmar').innerHTML = '<i class="fas fa-check me-2"></i>Confirmar';
+                new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+            }
+            
+            function cancelarPedido(pedidoId) {
+                document.getElementById('modalTitulo').textContent = 'Cancelar Pedido';
+                document.getElementById('modalMensagem').textContent = 'Tem certeza que deseja cancelar este pedido?';
+                document.getElementById('formAcao').action = '/pedidos/' + pedidoId + '/cancelar';
+                document.getElementById('btnConfirmar').className = 'btn btn-danger';
+                document.getElementById('btnConfirmar').innerHTML = '<i class="fas fa-times me-2"></i>Cancelar';
+                new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+            }
+            
+            // Inicializar cálculo do subtotal
+            document.addEventListener('DOMContentLoaded', function() {
+                const produtoSelect = document.getElementById('produtoId');
+                const quantidadeInput = document.getElementById('quantidade');
+                
+                if (produtoSelect) {
+                    produtoSelect.addEventListener('change', atualizarPreco);
+                }
+                
+                if (quantidadeInput) {
+                    quantidadeInput.addEventListener('input', calcularSubtotal);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
+

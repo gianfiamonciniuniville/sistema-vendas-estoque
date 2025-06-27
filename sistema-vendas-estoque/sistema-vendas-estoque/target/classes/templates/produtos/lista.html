@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Sistema de Vendas e Estoque</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="/webjars/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-store me-2"></i>
+                Sistema de Vendas e Estoque
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-shopping-cart me-1"></i>Vendas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/pedidos"><i class="fas fa-list me-2"></i>Pedidos</a></li>
+                            <li><a class="dropdown-item" href="/pedidos/novo"><i class="fas fa-plus me-2"></i>Novo Pedido</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/pedidos/relatorio"><i class="fas fa-chart-bar me-2"></i>Relatórios</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-boxes me-1"></i>Estoque
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/estoque"><i class="fas fa-list me-2"></i>Consultar Estoque</a></li>
+                            <li><a class="dropdown-item" href="/estoque/baixo"><i class="fas fa-exclamation-triangle me-2"></i>Estoque Baixo</a></li>
+                            <li><a class="dropdown-item" href="/estoque/zerado"><i class="fas fa-times-circle me-2"></i>Estoque Zerado</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/estoque/relatorio"><i class="fas fa-chart-line me-2"></i>Relatórios</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-database me-1"></i>Cadastros
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item active" href="/produtos"><i class="fas fa-box me-2"></i>Produtos</a></li>
+                            <li><a class="dropdown-item" href="/clientes"><i class="fas fa-users me-2"></i>Clientes</a></li>
+                            <li><a class="dropdown-item" href="/usuarios"><i class="fas fa-user-cog me-2"></i>Usuários</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>Usuário
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Perfil</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configurações</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid py-4">
+        <!-- Alerts -->
+        <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${sucesso}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${erro}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-box me-2 text-primary"></i>
+                Produtos
+            </h1>
+            <a href="/produtos/novo" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Produto
+            </a>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="/produtos">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" name="busca" 
+                                       th:value="${busca}" placeholder="Buscar produtos...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="categoria">
+                                <option value="">Todas as categorias</option>
+                                <option th:each="cat : ${categorias}" 
+                                        th:value="${cat}" 
+                                        th:text="${cat}"
+                                        th:selected="${categoria == cat}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" name="precoMin" 
+                                   th:value="${precoMin}" placeholder="Preço mín." step="0.01">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" name="precoMax" 
+                                   th:value="${precoMax}" placeholder="Preço máx." step="0.01">
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="row">
+            <div th:if="${produtos.empty}" class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Nenhum produto encontrado</h5>
+                        <p class="text-muted">Tente ajustar os filtros ou adicione novos produtos.</p>
+                        <a href="/produtos/novo" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar Produto
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:each="produto : ${produtos}" class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary" th:text="${produto.categoria}"></span>
+                            <span class="badge" 
+                                  th:classappend="${produto.ativo} ? 'bg-success' : 'bg-secondary'"
+                                  th:text="${produto.ativo} ? 'Ativo' : 'Inativo'">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title" th:text="${produto.nome}"></h6>
+                        <p class="card-text text-muted small" th:text="${produto.descricao}"></p>
+                        <div class="mb-2">
+                            <strong class="text-success h5">
+                                R$ <span th:text="${#numbers.formatDecimal(produto.preco, 1, 2)}"></span>
+                            </strong>
+                        </div>
+                        <div class="mb-2" th:if="${produto.codigoBarras}">
+                            <small class="text-muted">
+                                <i class="fas fa-barcode me-1"></i>
+                                <span th:text="${produto.codigoBarras}"></span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a th:href="@{/produtos/{id}(id=${produto.produtoId})}" 
+                               class="btn btn-sm btn-outline-info" title="Visualizar">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{/produtos/{id}/editar(id=${produto.produtoId})}" 
+                               class="btn btn-sm btn-outline-primary" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                        data-bs-toggle="dropdown" title="Mais ações">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li th:if="${produto.ativo}">
+                                        <form th:action="@{/produtos/{id}/desativar(id=${produto.produtoId})}" 
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-warning"
+                                                    onclick="return confirm('Deseja desativar este produto?')">
+                                                <i class="fas fa-ban me-2"></i>Desativar
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li th:unless="${produto.ativo}">
+                                        <form th:action="@{/produtos/{id}/ativar(id=${produto.produtoId})}" 
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-success"
+                                                    onclick="return confirm('Deseja ativar este produto?')">
+                                                <i class="fas fa-check me-2"></i>Ativar
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/estoque/movimentacao/{id}(id=${produto.produtoId})}">
+                                            <i class="fas fa-boxes me-2"></i>Estoque
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form th:action="@{/produtos/{id}/excluir(id=${produto.produtoId})}" 
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-danger"
+                                                    onclick="return confirm('Deseja excluir este produto? Esta ação não pode ser desfeita.')">
+                                                <i class="fas fa-trash me-2"></i>Excluir
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-copyright me-1"></i>
+                2024 Sistema de Vendas e Estoque. Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="/webjars/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/script.js"></script>
+</body>
+</html>
+

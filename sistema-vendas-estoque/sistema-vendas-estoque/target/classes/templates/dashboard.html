@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                Dashboard
+            </h1>
+            <div class="text-muted">
+                <i class="fas fa-calendar-alt me-1"></i>
+                <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <!-- Vendas Hoje -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-primary border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                                    Vendas Hoje
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">
+                                    R$ <span th:text="${#numbers.formatDecimal(vendasHoje != null ? vendasHoje : 0, 1, 2)}">0,00</span>
+                                </div>
+                                <div class="text-xs text-muted">
+                                    <span th:text="${pedidosHoje != null ? pedidosHoje : 0}">0</span> pedidos
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendas do Mês -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-success border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                                    Vendas do Mês
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">
+                                    R$ <span th:text="${#numbers.formatDecimal(vendasMes != null ?  0, 1, 2)}">0,00</span>
+                                </div>
+                                <div class="text-xs text-muted">
+                                    Ticket médio: R$ <span th:text="${#numbers.formatDecimal(ticketMedio != null ?  0, 1, 2)}">0,00</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pedidos Pendentes -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-warning border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                                    Pedidos Pendentes
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800" th:text="${pedidosPendentes != null ?  0}">0</div>
+                                <div class="text-xs text-muted">
+                                    <a href="/pedidos?status=PENDENTE" class="text-decoration-none">Ver todos</a>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estoque Baixo -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-danger border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">
+                                    Estoque Baixo
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800" th:text="${estoqueBaixo != null ?  0}">0</div>
+                                <div class="text-xs text-muted">
+                                    <a href="/estoque/baixo" class="text-decoration-none">Ver produtos</a>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row of Cards -->
+        <div class="row mb-4">
+            <!-- Total de Produtos -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-info border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-info text-uppercase mb-1">
+                                    Produtos Ativos
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800" th:text="${totalProdutos != null ?  0}">0</div>
+                                <div class="text-xs text-muted">
+                                    <a href="/produtos" class="text-decoration-none">Gerenciar</a>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-box fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total de Clientes -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-secondary border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-secondary text-uppercase mb-1">
+                                    Total de Clientes
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800" th:text="${totalClientes != null ?  0}">0</div>
+                                <div class="text-xs text-muted">
+                                    <a href="/clientes" class="text-decoration-none">Ver todos</a>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itens em Estoque -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-dark border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-dark text-uppercase mb-1">
+                                    Itens em Estoque
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800" th:text="${totalItensEstoque != null ?  0}">0</div>
+                                <div class="text-xs text-muted">
+                                    <span th:text="${estoqueZerado != null ?  0}">0</span> zerados
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuários Ativos -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start border-5 shadow h-100 py-2" style="border-color: #6c757d !important;">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-muted text-uppercase mb-1">
+                                    Usuários Ativos
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800" th:text="${totalUsuarios != null ?  0}">0</div>
+                                <div class="text-xs text-muted">
+                                    <a href="/usuarios" class="text-decoration-none">Gerenciar</a>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-cog fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 fw-bold text-primary">
+                            <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <a href="/pedidos/novo" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Novo Pedido
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="/clientes/novo" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Novo Cliente
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="/produtos/novo" class="btn btn-info btn-lg w-100">
+                                    <i class="fas fa-box me-2"></i>
+                                    Novo Produto
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="/estoque" class="btn btn-warning btn-lg w-100">
+                                    <i class="fas fa-boxes me-2"></i>
+                                    Consultar Estoque
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 fw-bold text-primary">
+                            <i class="fas fa-list me-2"></i>Pedidos Recentes
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pedido</th>
+                                        <th>Cliente</th>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="pedido : ${pedidosRecentes}" th:if="${pedidosRecentes != null}">
+                                        <td>
+                                            <a th:href="@{/pedidos/{id}(id=${pedido.pedidoId})}" 
+                                               class="text-decoration-none fw-bold">
+                                                #<span th:text="${pedido.pedidoId}"></span>
+                                            </a>
+                                        </td>
+                                        <td th:text="${pedido.cliente.nome}"></td>
+                                        <td th:text="${#temporals.format(pedido.data, 'dd/MM/yyyy')}"></td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${pedido.status.name() == 'PENDENTE' ? 'bg-warning' : 
+                                                                   pedido.status.name() == 'CONFIRMADO' ? 'bg-info' : 
+                                                                   pedido.status.name() == 'EM_PREPARACAO' ? 'bg-primary' : 
+                                                                   pedido.status.name() == 'ENTREGUE' ? 'bg-success' : 'bg-danger'}"
+                                                  th:text="${pedido.status.name()}"></span>
+                                        </td>
+                                        <td class="fw-bold">
+                                            R$ <span th:text="${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${pedidosRecentes == null or #lists.isEmpty(pedidosRecentes)}">
+                                        <td colspan="5" class="text-center text-muted">
+                                            <i class="fas fa-inbox me-2"></i>
+                                            Nenhum pedido encontrado
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center">
+                            <a href="/pedidos" class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-2"></i>Ver Todos os Pedidos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 fw-bold text-primary">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Alertas de Estoque
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div th:each="produto : ${produtosEstoqueBaixo}" th:if="${produtosEstoqueBaixo != null}" 
+                             class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-box text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold" th:text="${produto.nome}"></div>
+                                <div class="text-muted small">
+                                    Estoque: <span th:text="${produto.estoque?.quantidadeAtual != null ?  0}"></span>
+                                    | Mínimo: <span th:text="${produto.estoque?.quantidadeMinima != null ?  0}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${produtosEstoqueBaixo == null or #lists.isEmpty(produtosEstoqueBaixo)}" 
+                             class="text-center text-muted">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Todos os produtos com estoque adequado
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="/estoque/baixo" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-eye me-2"></i>Ver Todos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <!-- Dashboard specific scripts -->
+        <script>
+            // Auto refresh dashboard every 5 minutes
+            setTimeout(function() {
+                location.reload();
+            }, 300000);
+        </script>
+    </th:block>
+</body>
+</html>
+                                <a href="/produtos/novo" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-box me-2"></i>
+                                    Novo Produto
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="/clientes/novo" class="btn btn-info btn-lg w-100">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Novo Cliente
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="/estoque" class="btn btn-warning btn-lg w-100">
+                                    <i class="fas fa-boxes me-2"></i>
+                                    Consultar Estoque
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Overview -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-pie me-2"></i>Status dos Pedidos
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 text-center">
+                                <div class="text-warning">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h5 mb-0" th:text="${pedidosPendentes}">0</div>
+                                    <small class="text-muted">Pendentes</small>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="text-success">
+                                    <i class="fas fa-check-circle fa-2x"></i>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h5 mb-0" th:text="${pedidosConfirmados}">0</div>
+                                    <small class="text-muted">Confirmados</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <div class="text-primary">
+                                    <i class="fas fa-truck fa-2x"></i>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h5 mb-0" th:text="${pedidosEntregues}">0</div>
+                                    <small class="text-muted">Entregues</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-warehouse me-2"></i>Status do Estoque
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 text-center">
+                                <div class="text-danger">
+                                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h5 mb-0" th:text="${estoqueBaixo}">0</div>
+                                    <small class="text-muted">Estoque Baixo</small>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="text-dark">
+                                    <i class="fas fa-times-circle fa-2x"></i>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h5 mb-0" th:text="${estoqueZerado}">0</div>
+                                    <small class="text-muted">Estoque Zerado</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <div class="text-success">
+                                    <i class="fas fa-boxes fa-2x"></i>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="h5 mb-0" th:text="${totalItensEstoque}">0</div>
+                                    <small class="text-muted">Total de Itens</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-copyright me-1"></i>
+                2024 Sistema de Vendas e Estoque. Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="/webjars/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/script.js"></script>
+</body>
+</html>
+

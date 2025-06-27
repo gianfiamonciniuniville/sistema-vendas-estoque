@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+<head>
+    <title>Relatório de Pedidos</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Relatório de Pedidos</h1>
+                <a href="/pedidos" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <form method="get" action="/pedidos/relatorio" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="dataInicio" class="form-label">Data Início</label>
+                            <input type="date" class="form-control" name="dataInicio" id="dataInicio" th:value="${dataInicio}">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="dataFim" class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" name="dataFim" id="dataFim" th:value="${dataFim}">
+                        </div>
+                        
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-2"></i>Filtrar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Imprimir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Resumo -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total de Pedidos
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${#lists.size(pedidos)}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Total de Vendas
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${'R$ ' + #numbers.formatDecimal(vendas, 1, 2)}">R$ 0,00</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Ticket Médio
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${'R$ ' + #numbers.formatDecimal(ticketMedio, 1, 2)}">R$ 0,00</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Período
+                                    </div>
+                                    <div class="h6 mb-0 font-weight-bold text-gray-800">
+                                        <span th:text="${#temporals.format(dataInicio, 'dd/MM/yyyy')}">01/01/2024</span> a 
+                                        <span th:text="${#temporals.format(dataFim, 'dd/MM/yyyy')}">31/01/2024</span>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lista de Pedidos -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Detalhamento dos Pedidos</h6>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(pedidos)}" class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Nenhum pedido encontrado no período selecionado.</p>
+                    </div>
+                    
+                    <div th:unless="${#lists.isEmpty(pedidos)}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Status</th>
+                                    <th>Valor Total</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pedido : ${pedidos}">
+                                    <td>
+                                        <a th:href="@{/pedidos/{id}(id=${pedido.pedidoId})}" 
+                                           th:text="'#' + ${pedido.pedidoId}">#123</a>
+                                    </td>
+                                    <td th:text="${#temporals.format(pedido.data, 'dd/MM/yyyy')}">01/01/2024</td>
+                                    <td>
+                                        <a th:href="@{/clientes/{id}(id=${pedido.cliente.clienteId})}" 
+                                           th:text="${pedido.cliente.nome}">Nome do Cliente</a>
+                                    </td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE} ? 'bg-warning' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).CONFIRMADO} ? 'bg-info' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).EM_PREPARACAO} ? 'bg-primary' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).ENVIADO} ? 'bg-secondary' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).ENTREGUE} ? 'bg-success' : 'bg-danger'"
+                                              th:text="${pedido.status.descricao}">Status</span>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${'R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 2)}">R$ 0,00</strong>
+                                    </td>
+                                    <td th:text="${pedido.usuario.nome}">Usuário</td>
+                                </tr>
+                            </tbody>
+                            <tfoot th:unless="${#lists.isEmpty(pedidos)}">
+                                <tr class="table-active">
+                                    <th colspan="4" class="text-end">Total Geral:</th>
+                                    <th>
+                                        <span class="h5 text-success" th:text="${'R$ ' + #numbers.formatDecimal(vendas, 1, 2)}">R$ 0,00</span>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:fragment="scripts">
+        <script>
+            // Configurar datas padrão se não estiverem definidas
+            document.addEventListener('DOMContentLoaded', function() {
+                const dataInicio = document.getElementById('dataInicio');
+                const dataFim = document.getElementById('dataFim');
+                
+                if (!dataInicio.value) {
+                    const hoje = new Date();
+                    const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+                    dataInicio.value = primeiroDiaMes.toISOString().split('T')[0];
+                }
+                
+                if (!dataFim.value) {
+                    const hoje = new Date();
+                    dataFim.value = hoje.toISOString().split('T')[0];
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
+

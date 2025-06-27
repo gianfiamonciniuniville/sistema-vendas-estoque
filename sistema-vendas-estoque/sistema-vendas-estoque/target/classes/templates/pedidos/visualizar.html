@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+<head>
+    <title>Visualizar Pedido</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">
+                    Pedido <span th:text="'#' + ${pedido.pedidoId}">#123</span>
+                </h1>
+                <div>
+                    <a th:href="@{/pedidos/{id}/editar(id=${pedido.pedidoId})}" 
+                       class="btn btn-primary me-2"
+                       th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE}">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+                    <a href="/pedidos" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informações do Pedido</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Cliente</label>
+                                    <p class="h6">
+                                        <a th:href="@{/clientes/{id}(id=${pedido.cliente.clienteId})}" 
+                                           th:text="${pedido.cliente.nome}">Nome do Cliente</a>
+                                    </p>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-muted">Data do Pedido</label>
+                                    <p th:text="${#temporals.format(pedido.data, 'dd/MM/yyyy')}">01/01/2024</p>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-muted">Status</label>
+                                    <p>
+                                        <span class="badge fs-6" 
+                                              th:classappend="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE} ? 'bg-warning' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).CONFIRMADO} ? 'bg-info' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).EM_PREPARACAO} ? 'bg-primary' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).ENVIADO} ? 'bg-secondary' : 
+                                                             ${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).ENTREGUE} ? 'bg-success' : 'bg-danger'"
+                                              th:text="${pedido.status.descricao}">Status</span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Usuário Responsável</label>
+                                    <p th:text="${pedido.usuario.nome}">Nome do Usuário</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Valor Total</label>
+                                    <p class="h5 text-success">
+                                        <strong th:text="${'R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 2)}">R$ 0,00</strong>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${pedido.observacoes}" class="mb-3">
+                                <label class="form-label text-muted">Observações</label>
+                                <p th:text="${pedido.observacoes}">Observações do pedido</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Itens do Pedido -->
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                Itens do Pedido
+                                <span class="badge bg-secondary ms-2" th:text="${#lists.size(itens)}">0</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(itens)}" class="text-center py-4">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Nenhum item adicionado ao pedido.</p>
+                                <a th:href="@{/pedidos/{id}/editar(id=${pedido.pedidoId})}" 
+                                   class="btn btn-primary"
+                                   th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE}">
+                                    <i class="fas fa-plus me-2"></i>Adicionar Itens
+                                </a>
+                            </div>
+                            
+                            <div th:unless="${#lists.isEmpty(itens)}" class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Preço Unit.</th>
+                                            <th>Quantidade</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${itens}">
+                                            <td>
+                                                <strong th:text="${item.produto.nome}">Nome do Produto</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${item.produto.categoria}">Categoria</small>
+                                            </td>
+                                            <td th:text="${'R$ ' + #numbers.formatDecimal(item.precoUnitario, 1, 2)}">R$ 0,00</td>
+                                            <td>
+                                                <span class="badge bg-primary" th:text="${item.quantidade}">1</span>
+                                            </td>
+                                            <td>
+                                                <strong th:text="${'R$ ' + #numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 0,00</strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-active">
+                                            <th colspan="3" class="text-end">Total do Pedido:</th>
+                                            <th>
+                                                <span class="h5 text-success" th:text="${'R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 2)}">R$ 0,00</span>
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informações do Sistema</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">ID do Pedido</label>
+                                <p class="font-weight-bold" th:text="'#' + ${pedido.pedidoId}">#123</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Data de Criação</label>
+                                <p th:text="${#temporals.format(pedido.dataCriacao, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
+                            </div>
+                            
+                            <div th:if="${pedido.dataAtualizacao}" class="mb-3">
+                                <label class="form-label text-muted">Última Atualização</label>
+                                <p th:text="${#temporals.format(pedido.dataAtualizacao, 'dd/MM/yyyy HH:mm')}">01/01/2024 15:30</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Ações</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success" 
+                                        th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE}"
+                                        onclick="confirmarPedido([[${pedido.pedidoId}]])">
+                                    <i class="fas fa-check me-2"></i>Confirmar Pedido
+                                </button>
+                                
+                                <div class="btn-group" th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).CONFIRMADO or pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).EM_PREPARACAO}">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-edit me-2"></i>Alterar Status
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="alterarStatus([[${pedido.pedidoId}]], 'EM_PREPARACAO')">Em Preparação</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="alterarStatus([[${pedido.pedidoId}]], 'ENVIADO')">Enviado</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="alterarStatus([[${pedido.pedidoId}]], 'ENTREGUE')">Entregue</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <button type="button" class="btn btn-warning" 
+                                        th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).ENVIADO}"
+                                        onclick="alterarStatus([[${pedido.pedidoId}]], 'ENTREGUE')">
+                                    <i class="fas fa-truck me-2"></i>Marcar como Entregue
+                                </button>
+                                
+                                <button type="button" class="btn btn-danger" 
+                                        th:if="${pedido.status != T(com.sistema.vendasestoque.enums.StatusPedido).ENTREGUE and pedido.status != T(com.sistema.vendasestoque.enums.StatusPedido).CANCELADO}"
+                                        onclick="cancelarPedido([[${pedido.pedidoId}]])">
+                                    <i class="fas fa-times me-2"></i>Cancelar Pedido
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-danger" 
+                                        th:if="${pedido.status == T(com.sistema.vendasestoque.enums.StatusPedido).PENDENTE}"
+                                        onclick="excluirPedido([[${pedido.pedidoId}]])">
+                                    <i class="fas fa-trash me-2"></i>Excluir Pedido
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Confirmação -->
+        <div class="modal fade" id="modalConfirmacao" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modalMensagem">Confirmar ação?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formAcao" method="post" style="display: inline;">
+                            <button type="submit" class="btn" id="btnConfirmar">Confirmar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:fragment="scripts">
+        <script>
+            function confirmarPedido(pedidoId) {
+                document.getElementById('modalTitulo').textContent = 'Confirmar Pedido';
+                document.getElementById('modalMensagem').textContent = 'Tem certeza que deseja confirmar este pedido? Esta ação irá reduzir o estoque dos produtos.';
+                document.getElementById('formAcao').action = '/pedidos/' + pedidoId + '/confirmar';
+                document.getElementById('btnConfirmar').className = 'btn btn-success';
+                document.getElementById('btnConfirmar').innerHTML = '<i class="fas fa-check me-2"></i>Confirmar';
+                new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+            }
+            
+            function cancelarPedido(pedidoId) {
+                document.getElementById('modalTitulo').textContent = 'Cancelar Pedido';
+                document.getElementById('modalMensagem').textContent = 'Tem certeza que deseja cancelar este pedido? Se já foi confirmado, o estoque será devolvido.';
+                document.getElementById('formAcao').action = '/pedidos/' + pedidoId + '/cancelar';
+                document.getElementById('btnConfirmar').className = 'btn btn-danger';
+                document.getElementById('btnConfirmar').innerHTML = '<i class="fas fa-times me-2"></i>Cancelar';
+                new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+            }
+            
+            function alterarStatus(pedidoId, novoStatus) {
+                const statusTexto = {
+                    'EM_PREPARACAO': 'Em Preparação',
+                    'ENVIADO': 'Enviado',
+                    'ENTREGUE': 'Entregue'
+                };
+                
+                document.getElementById('modalTitulo').textContent = 'Alterar Status';
+                document.getElementById('modalMensagem').textContent = 'Tem certeza que deseja alterar o status do pedido para "' + statusTexto[novoStatus] + '"?';
+                document.getElementById('formAcao').action = '/pedidos/' + pedidoId + '/status';
+                document.getElementById('formAcao').innerHTML = '<input type="hidden" name="status" value="' + novoStatus + '"><button type="submit" class="btn btn-primary" id="btnConfirmar"><i class="fas fa-edit me-2"></i>Alterar</button>';
+                new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+            }
+            
+            function excluirPedido(pedidoId) {
+                document.getElementById('modalTitulo').textContent = 'Excluir Pedido';
+                document.getElementById('modalMensagem').textContent = 'Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.';
+                document.getElementById('formAcao').action = '/pedidos/' + pedidoId + '/excluir';
+                document.getElementById('btnConfirmar').className = 'btn btn-danger';
+                document.getElementById('btnConfirmar').innerHTML = '<i class="fas fa-trash me-2"></i>Excluir';
+                new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+            }
+        </script>
+    </div>
+</body>
+</html>
+

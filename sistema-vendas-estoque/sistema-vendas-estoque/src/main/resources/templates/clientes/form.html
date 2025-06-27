@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+<head>
+    <title th:text="${cliente.clienteId != null ? 'Editar Cliente' : 'Novo Cliente'}">Cliente</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800" th:text="${cliente.clienteId != null ? 'Editar Cliente' : 'Novo Cliente'}">Cliente</h1>
+                <a href="/clientes" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Dados do Cliente</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/clientes}" th:object="${cliente}" method="post">
+                                <input type="hidden" th:field="*{clienteId}">
+                                
+                                <div class="row">
+                                    <div class="col-md-8 mb-3">
+                                        <label for="nome" class="form-label">Nome *</label>
+                                        <input type="text" class="form-control" th:field="*{nome}" 
+                                               th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid' : ''"
+                                               placeholder="Nome completo do cliente" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="cpfCnpj" class="form-label">CPF/CNPJ *</label>
+                                        <input type="text" class="form-control" th:field="*{cpfCnpj}" 
+                                               th:classappend="${#fields.hasErrors('cpfCnpj')} ? 'is-invalid' : ''"
+                                               placeholder="000.000.000-00" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cpfCnpj')}" th:errors="*{cpfCnpj}"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" th:field="*{email}" 
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                               placeholder="email@exemplo.com">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telefone" class="form-label">Telefone</label>
+                                        <input type="text" class="form-control" th:field="*{telefone}" 
+                                               placeholder="(11) 99999-9999">
+                                    </div>
+                                </div>
+                                
+                                <h6 class="text-primary mb-3 mt-4">Endereço</h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="cep" class="form-label">CEP</label>
+                                        <input type="text" class="form-control" th:field="*{cep}" 
+                                               placeholder="00000-000">
+                                    </div>
+                                    
+                                    <div class="col-md-9 mb-3">
+                                        <label for="endereco" class="form-label">Endereço</label>
+                                        <input type="text" class="form-control" th:field="*{endereco}" 
+                                               placeholder="Rua, Avenida, etc.">
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="numero" class="form-label">Número</label>
+                                        <input type="text" class="form-control" th:field="*{numero}" 
+                                               placeholder="123">
+                                    </div>
+                                    
+                                    <div class="col-md-5 mb-3">
+                                        <label for="complemento" class="form-label">Complemento</label>
+                                        <input type="text" class="form-control" th:field="*{complemento}" 
+                                               placeholder="Apto, Sala, etc.">
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="bairro" class="form-label">Bairro</label>
+                                        <input type="text" class="form-control" th:field="*{bairro}" 
+                                               placeholder="Nome do bairro">
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cidade" class="form-label">Cidade</label>
+                                        <input type="text" class="form-control" th:field="*{cidade}" 
+                                               placeholder="Nome da cidade">
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="estado" class="form-label">Estado</label>
+                                        <select class="form-select" th:field="*{estado}">
+                                            <option value="">Selecione o estado</option>
+                                            <option value="AC">Acre</option>
+                                            <option value="AL">Alagoas</option>
+                                            <option value="AP">Amapá</option>
+                                            <option value="AM">Amazonas</option>
+                                            <option value="BA">Bahia</option>
+                                            <option value="CE">Ceará</option>
+                                            <option value="DF">Distrito Federal</option>
+                                            <option value="ES">Espírito Santo</option>
+                                            <option value="GO">Goiás</option>
+                                            <option value="MA">Maranhão</option>
+                                            <option value="MT">Mato Grosso</option>
+                                            <option value="MS">Mato Grosso do Sul</option>
+                                            <option value="MG">Minas Gerais</option>
+                                            <option value="PA">Pará</option>
+                                            <option value="PB">Paraíba</option>
+                                            <option value="PR">Paraná</option>
+                                            <option value="PE">Pernambuco</option>
+                                            <option value="PI">Piauí</option>
+                                            <option value="RJ">Rio de Janeiro</option>
+                                            <option value="RN">Rio Grande do Norte</option>
+                                            <option value="RS">Rio Grande do Sul</option>
+                                            <option value="RO">Rondônia</option>
+                                            <option value="RR">Roraima</option>
+                                            <option value="SC">Santa Catarina</option>
+                                            <option value="SP">São Paulo</option>
+                                            <option value="SE">Sergipe</option>
+                                            <option value="TO">Tocantins</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="observacoes" class="form-label">Observações</label>
+                                    <textarea class="form-control" th:field="*{observacoes}" rows="3" 
+                                              placeholder="Observações adicionais sobre o cliente"></textarea>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <a href="/clientes" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${cliente.clienteId != null ? 'Atualizar' : 'Salvar'}">Salvar</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informações</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Campos obrigatórios:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Nome</li>
+                                    <li>CPF/CNPJ</li>
+                                </ul>
+                            </div>
+                            
+                            <div th:if="${cliente.clienteId != null}" class="alert alert-secondary">
+                                <i class="fas fa-calendar me-2"></i>
+                                <strong>Cadastrado em:</strong><br>
+                                <span th:text="${#temporals.format(cliente.dataCadastro, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:fragment="scripts">
+        <script>
+            // Máscara para CPF/CNPJ
+            document.addEventListener('DOMContentLoaded', function() {
+                const cpfCnpjInput = document.querySelector('input[name="cpfCnpj"]');
+                if (cpfCnpjInput) {
+                    cpfCnpjInput.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 11) {
+                            // CPF
+                            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                        } else {
+                            // CNPJ
+                            value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+                            value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+                            value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+                            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                        }
+                        e.target.value = value;
+                    });
+                }
+                
+                // Máscara para telefone
+                const telefoneInput = document.querySelector('input[name="telefone"]');
+                if (telefoneInput) {
+                    telefoneInput.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/\D/g, '');
+                        value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+                        value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                        e.target.value = value;
+                    });
+                }
+                
+                // Máscara para CEP
+                const cepInput = document.querySelector('input[name="cep"]');
+                if (cepInput) {
+                    cepInput.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/\D/g, '');
+                        value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                        e.target.value = value;
+                    });
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
+
